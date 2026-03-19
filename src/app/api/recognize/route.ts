@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { recognizeScreenshot } from '@/lib/gemini';
 import { saveFile, validateFile } from '@/lib/upload';
 import type { TicketType } from '@/types';
 
 export async function POST(request: NextRequest) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const formData = await request.formData();
   const image = formData.get('image') as File | null;
   const type = formData.get('type') as TicketType | null;

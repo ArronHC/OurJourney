@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { getAbsolutePath } from '@/lib/upload';
 
 const MIME_TYPES: Record<string, string> = {
@@ -11,9 +12,13 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const { path: pathSegments } = await params;
   const relPath = pathSegments.join('/');
   const absPath = getAbsolutePath(relPath);

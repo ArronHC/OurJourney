@@ -1,8 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { getDistance, getDistanceFunFact } from '@/lib/cities';
 import { getDb } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const db = getDb();
   const meetings = db
     .prepare(`

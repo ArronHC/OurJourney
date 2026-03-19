@@ -1,7 +1,14 @@
 import useSWR from 'swr';
 import type { Meeting, Stats } from '@/types';
 
-const fetcher = (url: string) => fetch(url).then((response) => response.json());
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || '请求失败');
+  }
+  return data;
+};
 
 export function useMeetings() {
   const { data, error, isLoading, mutate } = useSWR<Meeting[]>('/api/meetings', fetcher);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { getDb } from '@/lib/db';
 import { deleteFile } from '@/lib/upload';
 
@@ -6,6 +7,10 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!getAuthUserFromRequest(_request)) {
+    return unauthorizedResponse();
+  }
+
   const { id } = await params;
   const db = getDb();
   const meeting = db
@@ -30,6 +35,10 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const { id } = await params;
   const body = await request.json();
   const { title, city, start_date, end_date, notes } = body;
@@ -49,6 +58,10 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!getAuthUserFromRequest(_request)) {
+    return unauthorizedResponse();
+  }
+
   const { id } = await params;
   const db = getDb();
 

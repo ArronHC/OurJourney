@@ -1,25 +1,47 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { AuthUser } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 import { useSettings } from '@/hooks/useSettings';
+import InviteManager from './InviteManager';
 
 export default function SettingsPanel({
+  user,
   open,
   onClose,
 }: {
+  user: AuthUser;
   open: boolean;
   onClose: () => void;
 }) {
   const { settings, updateSettings } = useSettings();
+  const { logout } = useAuth();
   const [form, setForm] = useState(settings);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     setForm(settings);
   }, [settings]);
 
   const handleSave = async () => {
-    await updateSettings(form);
+    setIsSaving(true);
+    setMessage('');
+    try {
+      await updateSettings(form);
+      setMessage('设置已保存');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '保存失败');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
     onClose();
+    window.location.reload();
   };
 
   if (!open) {
@@ -42,10 +64,13 @@ export default function SettingsPanel({
       onClick={onClose}
     >
       <div
-        className="mx-4 w-full max-w-md rounded-2xl border border-journal-border bg-journal-paper p-6 shadow-xl"
+        className="mx-4 max-h-[85vh] w-full max-w-md overflow-y-auto rounded-2xl border border-journal-border bg-journal-paper p-6 shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <h3 className="mb-4 text-lg font-bold text-journal-text">设置</h3>
+        <h3 className="mb-1 text-lg font-bold text-journal-text">设置</h3>
+        <div className="mb-4 text-xs text-journal-text-muted">
+          当前登录：{user.display_name} · {user.email}
+        </div>
         <div className="space-y-3">
           {fields.map((field) => (
             <div key={field.key}>
@@ -63,6 +88,13 @@ export default function SettingsPanel({
             </div>
           ))}
         </div>
+
+        {message && (
+          <div className="mt-4 rounded-xl bg-green-50 px-3 py-2 text-xs text-green-700">
+            {message}
+          </div>
+        )}
+
         <div className="mt-5 flex gap-3">
           <button
             onClick={onClose}
@@ -72,11 +104,23 @@ export default function SettingsPanel({
           </button>
           <button
             onClick={handleSave}
+            disabled={isSaving}
             className="flex-1 rounded-lg bg-journal-accent py-2.5 text-sm font-semibold text-white font-serif"
           >
-            保存
+            {isSaving ? '保存中...' : '保存'}
           </button>
         </div>
+
+        <div className="mt-6">
+          <InviteManager />
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="mt-5 w-full rounded-lg border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 transition-all hover:bg-red-100"
+        >
+          退出登录
+        </button>
       </div>
     </div>
   );

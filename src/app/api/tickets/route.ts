@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { getDb } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const body = await request.json();
   const { meeting_id, type, traveler, ...fields } = body;
 

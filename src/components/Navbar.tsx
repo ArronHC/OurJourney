@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { AuthUser } from '@/types';
 import SettingsPanel from './SettingsPanel';
 
 const NAV_ITEMS = [
@@ -11,7 +12,7 @@ const NAV_ITEMS = [
   { id: 'map', label: '足迹' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ user }: { user: AuthUser }) {
   const [active, setActive] = useState('hero');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -42,6 +43,9 @@ export default function Navbar() {
     <>
       <nav className="fixed left-0 right-0 top-0 z-50 border-b border-journal-border bg-journal-paper/90 shadow-sm backdrop-blur-md">
         <div className="relative flex justify-center">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-journal-border bg-white px-3 py-1.5 text-xs text-journal-text-secondary">
+            {user.display_name}
+          </div>
           <button
             onClick={() => setSettingsOpen(true)}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-3 py-2 text-lg text-journal-text-secondary transition-all hover:bg-journal-gold/10 hover:text-journal-accent"
@@ -64,7 +68,7 @@ export default function Navbar() {
         ))}
         </div>
       </nav>
-      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsPanel user={user} open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
   );
 }

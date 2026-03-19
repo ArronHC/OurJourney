@@ -1,6 +1,31 @@
 export type TicketType = 'flight' | 'train' | 'hotel';
 export type Traveler = 'a' | 'b';
 
+export interface AuthUser {
+  id: number;
+  email: string;
+  display_name: string;
+  invited_by_user_id: number | null;
+  created_at: string;
+}
+
+export interface InviteCode {
+  id: number;
+  code: string;
+  created_by_user_id: number;
+  created_at: string;
+  used_at: string | null;
+  used_by_user_id: number | null;
+  used_by_name?: string | null;
+}
+
+export interface AuthStatus {
+  authenticated: boolean;
+  user: AuthUser | null;
+  user_count: number;
+  can_register_without_invite: boolean;
+}
+
 export interface Meeting {
   id: number;
   title: string;

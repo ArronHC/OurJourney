@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { getDb } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const db = getDb();
   const meetings = db
     .prepare(`
@@ -27,6 +32,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
   const body = await request.json();
   const { title, city, start_date, end_date, notes } = body;
 
