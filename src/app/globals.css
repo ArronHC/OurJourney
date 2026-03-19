@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-journal-bg text-journal-text font-serif;
+  }
+}
+
+@layer components {
+  .journal-lines {
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      #e8ddd0 31px,
+      #e8ddd0 32px
+    );
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .journal-binding {
+    border-left: 2px solid #e0c4a8;
+    opacity: 0.35;
+  }
+
+  .ticket-rotate-1 { transform: rotate(-1.2deg); }
+  .ticket-rotate-2 { transform: rotate(0.8deg); }
+  .ticket-rotate-3 { transform: rotate(-0.5deg); }
+  .ticket-rotate-4 { transform: rotate(1.1deg); }
+  .ticket-rotate-5 { transform: rotate(-0.3deg); }
+}
