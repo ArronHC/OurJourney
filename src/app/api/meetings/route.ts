@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       FROM meetings m
       LEFT JOIN tickets t ON t.meeting_id = m.id
       GROUP BY m.id
-      ORDER BY m.start_date DESC
+      ORDER BY m.start_date ASC
     `)
     .all() as Array<Record<string, unknown> & { id: number }>;
 

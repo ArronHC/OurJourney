@@ -16,7 +16,7 @@ describe('Meetings queries', () => {
     db.close();
   });
 
-  it('lists meetings in reverse chronological order', () => {
+  it('lists meetings in chronological order', () => {
     const now = new Date().toISOString();
     db.prepare(
       'INSERT INTO meetings (title, city, start_date, end_date, created_at, updated_at) VALUES (?,?,?,?,?,?)'
@@ -25,11 +25,11 @@ describe('Meetings queries', () => {
       'INSERT INTO meetings (title, city, start_date, end_date, created_at, updated_at) VALUES (?,?,?,?,?,?)'
     ).run('情人节', '上海', '2025-02-14', '2025-02-16', now, now);
 
-    const meetings = db.prepare('SELECT * FROM meetings ORDER BY start_date DESC').all() as {
+    const meetings = db.prepare('SELECT * FROM meetings ORDER BY start_date ASC').all() as {
       title: string;
     }[];
-    expect(meetings[0].title).toBe('情人节');
-    expect(meetings[1].title).toBe('元旦');
+    expect(meetings[0].title).toBe('元旦');
+    expect(meetings[1].title).toBe('情人节');
   });
 
   it('includes ticket cost summary', () => {

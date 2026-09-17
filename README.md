@@ -1,6 +1,6 @@
 # Journey Tracker
 
-一个基于 Next.js 的异地恋见面记录网站，用来记录机票、火车票、酒店订单，并通过 Gemini 识别截图内容。
+一个基于 Next.js 的异地恋见面记录网站，用来记录机票、火车票、酒店订单，并通过兼容 OpenAI 的多模态模型识别截图内容。
 
 ## 技术栈
 
@@ -10,7 +10,7 @@
 - SWR
 - Framer Motion
 - Leaflet
-- Gemini API
+- OpenAI 兼容多模态 API
 
 ## 本地开发
 
@@ -22,7 +22,9 @@ cp .env.example .env.local
 编辑 `.env.local`：
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key
+AI_API_KEY=your_api_key
+AI_BASE_URL=https://models.github.ai/inference
+AI_MODEL=openai/gpt-4o
 ```
 
 启动开发环境：
@@ -115,7 +117,9 @@ cp .env.example .env.local
 编辑 `.env.local`：
 
 ```env
-GEMINI_API_KEY=your_real_gemini_key
+AI_API_KEY=your_real_api_key
+AI_BASE_URL=https://models.github.ai/inference
+AI_MODEL=openai/gpt-4o
 ```
 
 ### 4. 安装依赖并构建

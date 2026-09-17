@@ -2,7 +2,10 @@ import useSWR from 'swr';
 import type { InviteCode } from '@/types';
 
 const fetcher = async (url: string) => {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    cache: 'no-store',
+    headers: { 'Cache-Control': 'no-cache' },
+  });
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || '请求失败');
@@ -17,7 +20,7 @@ export function useInvites(enabled = true) {
   );
 
   const createInvite = async () => {
-    const response = await fetch('/api/auth/invites', { method: 'POST' });
+    const response = await fetch('/api/auth/invites', { method: 'POST', cache: 'no-store' });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || '生成邀请码失败');

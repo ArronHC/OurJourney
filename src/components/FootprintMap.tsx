@@ -6,7 +6,18 @@ import { useSettings } from '@/hooks/useSettings';
 import EmptyState from './EmptyState';
 import ScrollFadeIn from './ScrollFadeIn';
 
-const MapInner = dynamic(() => import('./MapInner'), { ssr: false });
+function MapLoadingPlaceholder() {
+  return (
+    <div className="flex h-full items-center justify-center text-journal-text-muted">
+      加载中...
+    </div>
+  );
+}
+
+const MapInner = dynamic(() => import('./MapInner'), {
+  ssr: false,
+  loading: () => <MapLoadingPlaceholder />,
+});
 
 export default function FootprintMap() {
   const { meetings, isLoading } = useMeetings();
@@ -26,9 +37,7 @@ export default function FootprintMap() {
           <div className="overflow-hidden rounded-[14px] border border-journal-border bg-journal-paper shadow-sm">
             <div className="relative h-[320px]">
               {isLoading ? (
-                <div className="flex h-full items-center justify-center text-journal-text-muted">
-                  加载中...
-                </div>
+                <MapLoadingPlaceholder />
               ) : meetings.length === 0 ? (
                 <div className="flex h-full items-center justify-center">
                   <EmptyState message="足迹地图等待你们的第一段旅程" />

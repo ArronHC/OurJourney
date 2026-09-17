@@ -3,6 +3,25 @@ import { getAuthUserFromRequest, unauthorizedResponse } from '@/lib/auth';
 import { getDb } from '@/lib/db';
 import { deleteFile } from '@/lib/upload';
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  if (!getAuthUserFromRequest(request)) {
+    return unauthorizedResponse();
+  }
+
+  const { id } = await params;
+  const db = getDb();
+  const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(Number(id));
+
+  if (!ticket) {
+    return NextResponse.json({ error: '票据不存在' }, { status: 404 });
+  }
+
+  return NextResponse.json(ticket);
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,9 +34,17 @@ export async function PUT(
   const body = await request.json();
   const now = new Date().toISOString();
   const db = getDb();
+  const existingTicket = db
+    .prepare('SELECT screenshot_path FROM tickets WHERE id = ?')
+    .get(Number(id)) as { screenshot_path: string | null } | undefined;
+
+  if (!existingTicket) {
+    return NextResponse.json({ error: '票据不存在' }, { status: 404 });
+  }
 
   const fields = [
     'type',
+    'meeting_id',
     'traveler',
     'departure',
     'arrival',
@@ -48,6 +75,14 @@ export async function PUT(
   values.push(Number(id));
   db.prepare(`UPDATE tickets SET ${setClauses.join(', ')} WHERE id = ?`).run(...values);
 
+  if (
+    body.screenshot_path !== undefined &&
+    existingTicket.screenshot_path &&
+    body.screenshot_path !== existingTicket.screenshot_path
+  ) {
+    deleteFile(existingTicket.screenshot_path);
+  }
+
   const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(Number(id));
   return NextResponse.json(ticket);
 }
@@ -66,7 +101,11 @@ export async function DELETE(
     | { screenshot_path: string | null }
     | undefined;
 
-  if (ticket?.screenshot_path) {
+  if (!ticket) {
+    return NextResponse.json({ error: '票据不存在' }, { status: 404 });
+  }
+
+  if (ticket.screenshot_path) {
     deleteFile(ticket.screenshot_path);
   }
 

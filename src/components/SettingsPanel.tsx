@@ -41,7 +41,6 @@ export default function SettingsPanel({
   const handleLogout = async () => {
     await logout();
     onClose();
-    window.location.reload();
   };
 
   if (!open) {

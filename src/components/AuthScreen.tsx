@@ -39,7 +39,6 @@ export default function AuthScreen({ status }: { status: AuthStatus }) {
         });
       }
       setMessage({ type: 'success', text: '认证成功，正在进入你们的旅程页面...' });
-      window.location.reload();
     } catch (error) {
       setMessage({
         type: 'error',

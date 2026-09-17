@@ -76,12 +76,12 @@ export interface Settings {
 export interface RecognizeResponse {
   success: boolean;
   partial?: boolean;
+  detected_type?: TicketType;
   data?: Partial<
     Omit<
       Ticket,
       | 'id'
       | 'meeting_id'
-      | 'type'
       | 'traveler'
       | 'screenshot_path'
       | 'raw_ocr_data'

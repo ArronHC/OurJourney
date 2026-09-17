@@ -45,6 +45,15 @@ export async function PUT(
   const now = new Date().toISOString();
   const db = getDb();
 
+  if (!title || !city || !start_date || !end_date) {
+    return NextResponse.json({ error: '标题、城市、日期不能为空' }, { status: 400 });
+  }
+
+  const existingMeeting = db.prepare('SELECT id FROM meetings WHERE id = ?').get(Number(id));
+  if (!existingMeeting) {
+    return NextResponse.json({ error: '见面记录不存在' }, { status: 404 });
+  }
+
   db.prepare(`
     UPDATE meetings SET title = ?, city = ?, start_date = ?, end_date = ?, notes = ?, updated_at = ?
     WHERE id = ?
@@ -64,6 +73,11 @@ export async function DELETE(
 
   const { id } = await params;
   const db = getDb();
+  const meeting = db.prepare('SELECT id FROM meetings WHERE id = ?').get(Number(id));
+
+  if (!meeting) {
+    return NextResponse.json({ error: '见面记录不存在' }, { status: 404 });
+  }
 
   const tickets = db
     .prepare('SELECT screenshot_path FROM tickets WHERE meeting_id = ?')

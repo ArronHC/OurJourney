@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import type { Ticket } from '@/types';
 import { PaperClip, PushPin, WashiTape } from './TicketDecorations';
 
@@ -26,7 +27,15 @@ const DECORATIONS = {
   hotel: PushPin,
 };
 
-export default function TicketCard({ ticket, index }: { ticket: Ticket; index: number }) {
+export default function TicketCard({
+  ticket,
+  index,
+  actions,
+}: {
+  ticket: Ticket;
+  index: number;
+  actions?: ReactNode;
+}) {
   const rotation = ROTATION_CLASSES[index % ROTATION_CLASSES.length];
   const style = TYPE_STYLES[ticket.type];
   const Decoration = DECORATIONS[ticket.type];
@@ -64,6 +73,7 @@ export default function TicketCard({ ticket, index }: { ticket: Ticket; index: n
             )}
           </div>
         </div>
+        {actions && <div className="mt-4 flex justify-end">{actions}</div>}
       </div>
     );
   }
@@ -116,6 +126,7 @@ export default function TicketCard({ ticket, index }: { ticket: Ticket; index: n
           )}
         </div>
       </div>
+      {actions && <div className="mt-4 flex justify-end">{actions}</div>}
     </div>
   );
 }

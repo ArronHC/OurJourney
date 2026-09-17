@@ -2,7 +2,10 @@ import useSWR from 'swr';
 import type { Meeting, Stats } from '@/types';
 
 const fetcher = async (url: string) => {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    cache: 'no-store',
+    headers: { 'Cache-Control': 'no-cache' },
+  });
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || '请求失败');

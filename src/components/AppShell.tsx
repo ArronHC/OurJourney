@@ -12,7 +12,7 @@ export default function AppShell({ user }: { user: AuthUser }) {
   return (
     <>
       <Navbar user={user} />
-      <main className="pt-[52px]">
+      <main className="pt-[84px] sm:pt-[92px]">
         <Hero />
         <Timeline />
         <RecordForm />

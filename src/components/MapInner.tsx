@@ -1,7 +1,8 @@
 'use client';
 
 import 'leaflet/dist/leaflet.css';
-import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip } from 'react-leaflet';
+import { useEffect, useMemo } from 'react';
+import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import { CITY_COORDS, matchCity } from '@/lib/cities';
 import type { Meeting } from '@/types';
 
@@ -10,56 +11,95 @@ interface Props {
   nextCity?: string;
 }
 
+interface MapMarker {
+  city: string;
+  coords: [number, number];
+  count: number;
+  isNext: boolean;
+}
+
+function FitBounds({ coords }: { coords: [number, number][] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (coords.length === 0) {
+      return;
+    }
+
+    if (coords.length === 1) {
+      map.setView(coords[0], 5);
+      return;
+    }
+
+    map.fitBounds(coords, {
+      padding: [24, 24],
+      maxZoom: 6,
+    });
+  }, [coords, map]);
+
+  return null;
+}
+
 export default function MapInner({ meetings, nextCity }: Props) {
-  const cityCounts: Record<string, number> = {};
-  for (const meeting of meetings) {
-    const city = matchCity(meeting.city);
-    if (city) {
-      cityCounts[city] = (cityCounts[city] || 0) + 1;
+  const { markers, allCoords, center, lines } = useMemo(() => {
+    const cityCounts: Record<string, number> = {};
+    for (const meeting of meetings) {
+      const city = matchCity(meeting.city);
+      if (city) {
+        cityCounts[city] = (cityCounts[city] || 0) + 1;
+      }
     }
-  }
 
-  const markers = Object.entries(cityCounts)
-    .filter(([city]) => CITY_COORDS[city])
-    .map(([city, count]) => ({
-      city,
-      coords: CITY_COORDS[city] as [number, number],
-      count,
-      isNext: false,
-    }));
+    const nextMarkers: MapMarker[] = Object.entries(cityCounts)
+      .filter(([city]) => CITY_COORDS[city])
+      .map(([city, count]) => ({
+        city,
+        coords: CITY_COORDS[city] as [number, number],
+        count,
+        isNext: false,
+      }));
 
-  if (nextCity) {
-    const matched = matchCity(nextCity);
-    if (matched && CITY_COORDS[matched] && !cityCounts[matched]) {
-      markers.push({
-        city: matched,
-        coords: CITY_COORDS[matched],
-        count: 0,
-        isNext: true,
-      });
+    if (nextCity) {
+      const matched = matchCity(nextCity);
+      if (matched && CITY_COORDS[matched] && !cityCounts[matched]) {
+        nextMarkers.push({
+          city: matched,
+          coords: CITY_COORDS[matched],
+          count: 0,
+          isNext: true,
+        });
+      }
     }
-  }
 
-  const allCoords = markers.map((marker) => marker.coords);
-  const center: [number, number] =
-    allCoords.length > 0
-      ? [
-          allCoords.reduce((sum, coords) => sum + coords[0], 0) / allCoords.length,
-          allCoords.reduce((sum, coords) => sum + coords[1], 0) / allCoords.length,
-        ]
-      : [35, 110];
+    const nextAllCoords = nextMarkers.map((marker) => marker.coords);
+    const nextCenter: [number, number] =
+      nextAllCoords.length > 0
+        ? [
+            nextAllCoords.reduce((sum, coords) => sum + coords[0], 0) / nextAllCoords.length,
+            nextAllCoords.reduce((sum, coords) => sum + coords[1], 0) / nextAllCoords.length,
+          ]
+        : [35, 110];
 
-  const lines: [number, number][][] = [];
-  for (let index = 1; index < meetings.length; index += 1) {
-    const a = matchCity(meetings[index - 1].city);
-    const b = matchCity(meetings[index].city);
-    if (a && b && CITY_COORDS[a] && CITY_COORDS[b]) {
-      lines.push([CITY_COORDS[a], CITY_COORDS[b]]);
+    const nextLines: [number, number][][] = [];
+    for (let index = 1; index < meetings.length; index += 1) {
+      const a = matchCity(meetings[index - 1].city);
+      const b = matchCity(meetings[index].city);
+      if (a && b && CITY_COORDS[a] && CITY_COORDS[b]) {
+        nextLines.push([CITY_COORDS[a], CITY_COORDS[b]]);
+      }
     }
-  }
+
+    return {
+      markers: nextMarkers,
+      allCoords: nextAllCoords,
+      center: nextCenter,
+      lines: nextLines,
+    };
+  }, [meetings, nextCity]);
 
   return (
     <MapContainer center={center} zoom={5} className="h-full w-full" scrollWheelZoom={false}>
+      <FitBounds coords={allCoords} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

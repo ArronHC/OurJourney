@@ -61,16 +61,30 @@ export default function Stats() {
           />
         ) : (
           <ScrollFadeIn>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {cards.map((card) => (
                 <div
                   key={card.label}
-                  className="rounded-[14px] border border-journal-border bg-journal-paper p-6 text-center shadow-sm transition-transform hover:-translate-y-1"
+                  className="flex min-h-[190px] min-w-0 flex-col rounded-[14px] border border-journal-border bg-journal-paper p-5 text-center shadow-sm transition-transform hover:-translate-y-1 sm:min-h-[208px] sm:p-6"
                 >
                   <div className="mb-2 text-[28px]">{card.icon}</div>
-                  <div className={`my-1 text-4xl font-bold ${card.color}`}>{card.value}</div>
-                  <div className="text-sm text-journal-text-muted">{card.label}</div>
-                  <div className="mt-1 text-xs text-journal-text-secondary">{card.sub}</div>
+                  <div
+                    className={`mx-auto my-1 block max-w-full overflow-hidden text-balance break-words text-[clamp(1.85rem,5vw,2.35rem)] font-bold leading-[1.1] ${card.color}`}
+                  >
+                    {card.value}
+                  </div>
+                  <div className="mt-1 text-sm text-journal-text-muted">{card.label}</div>
+                  <div
+                    className="mt-2 overflow-hidden text-pretty break-words text-xs leading-5 text-journal-text-secondary"
+                    style={{
+                      display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: 3,
+                    }}
+                    title={card.sub}
+                  >
+                    {card.sub}
+                  </div>
                 </div>
               ))}
             </div>
